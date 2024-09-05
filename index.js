@@ -135,7 +135,7 @@ const pool = new Pool({
       host: 'localhost',
       database: 'bookswift',        // Replace with your PostgreSQL database name
       password: '#Tanu40048',    // Replace with your PostgreSQL password
-      port: 5432,                      // Default PostgreSQL port
+      port: 3128,                      // Default PostgreSQL port
     });
 
 // Route to get users
@@ -148,7 +148,7 @@ app.get('/login', async function (req, res) {
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
-app.get('/register', function (req, res) {
+app.get('/register-user', function (req, res) {
         res.render("register");
      });
 
@@ -157,18 +157,21 @@ app.get('/register', function (req, res) {
 // Route to add a new user with a password
 app.post('/register-user', async (req, res) => {
     const { name, address, email, password, username, language } = req.body;
+    console.log('Attempting to connect to PostgreSQL and add a new user...');
     try {
         console.log(name, address, email, password, username, language);
         const result = await pool.query(
             'INSERT INTO users (name, address, email, password, username, language) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [name, address, email, password, username, language]
         );
+        console.log('User successfully added:', result.rows[0]);
         res.json({ success: true, user: result.rows[0] });
     } catch (error) {
-        console.error('Error adding user to the database: ' + error.stack);
+        console.error('Error adding user to the database:', error);
         res.status(500).json({ error: 'Failed to register user' });
     }
 });
+
 
 app.get('/', function (req, res) {
    res.render("first");
